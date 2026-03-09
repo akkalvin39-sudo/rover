@@ -20,7 +20,7 @@ CC = $(MSPGCC_BIN_DIR)/msp430-elf-gcc.exe
 OBJCOPY = $(MSPGCC_BIN_DIR)/msp430-elf-objcopy.exe
 DSLite = D:/ti/ccs2041/ccs/ccs_base/DebugServer/bin/DSLite.exe
 RM = rm
-
+CPPCHECK = cppcheck
 # Files
 TARGET = $(BIN_DIR)/nsumo
 
@@ -42,6 +42,20 @@ SOURCES = src/main.c \
 
 OBJECT_NAMES = $(SOURCES:.c=.o)
 OBJECTS = $(patsubst %,$(OBJ_DIR)/%,$(OBJECT_NAMES))
+
+# Static Analysis
+CPPCHECK_INCLUDES = $(MSPGCC_INCLUDE_DIR) $(CCS_INCLUDE_GCC_DIR) ./src ./external/ ./external/printf
+CPPCHECK_IGNORE = external/printf
+CPPCHECK_FLAGS = \
+	--quiet --enable=all --error-exitcode=1 \
+	--inline-suppr \
+	--suppress=missingIncludeSystem \
+	--suppress=unmatchedSuppression \
+	--suppress=unusedFunction \
+	--suppress=staticFunction \
+	--suppress=checkersReport \
+	$(addprefix -I,$(CPPCHECK_INCLUDES)) \
+	$(addprefix -i,$(CPPCHECK_IGNORE))
 
 # Flags
 MCU = msp430g2553
@@ -66,7 +80,7 @@ $(OBJ_DIR)/%.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $^
 
 # Phonies
-.PHONY: all clean flash
+.PHONY: all clean flash cppcheck
 
 all: $(TARGET).hex
 
@@ -76,3 +90,6 @@ clean:
 flash: $(TARGET).hex
 	@echo "Flashing $(TARGET).hex to MSP430G2553..."
 	$(DSLite) load -c MSP430G2553.ccxml $(TARGET).hex
+
+cppcheck:
+	@$(CPPCHECK) $(CPPCHECK_FLAGS) $(SOURCES)
