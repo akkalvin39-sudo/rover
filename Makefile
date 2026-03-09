@@ -1,22 +1,22 @@
 # Directories
-ifeq ($(OS),Windows_NT)
-    # Windows paths (Local Development)
-    MSPGCC_ROOT_DIR = C:/Users/User/Downloads/msp430-gcc
-    CCS_INCLUDE_GCC_DIR = D:/ti/ccs2041/ccs/ccs_base/msp430/include_gcc
-    EXT = .exe
-else
-    # Linux paths (GitHub Actions Docker Container)
-    MSPGCC_ROOT_DIR = /home/ubuntu/dev/tools/msp430-gcc
-    CCS_INCLUDE_GCC_DIR = $(MSPGCC_ROOT_DIR)/include
-    EXT = 
-endif
-
+TOOLS_DIR = ${TOOLS_PATH}
+MSPGCC_ROOT_DIR = $(TOOLS_DIR)/msp430-gcc
 MSPGCC_BIN_DIR = $(MSPGCC_ROOT_DIR)/bin
 MSPGCC_INCLUDE_DIR = $(MSPGCC_ROOT_DIR)/include
 
 BUILD_DIR = build
 OBJ_DIR = $(BUILD_DIR)/obj
 BIN_DIR = $(BUILD_DIR)/bin
+
+TI_CCS_DIR = $(TOOLS_DIR)/ccs2041/ccs
+CCS_INCLUDE_GCC_DIR = $(TI_CCS_DIR)/ccs_base/msp430/include_gcc
+
+ifeq ($(OS),Windows_NT)
+    EXT = .exe
+else
+    EXT = 
+    CCS_INCLUDE_GCC_DIR = $(MSPGCC_ROOT_DIR)/include
+endif
 
 LIB_DIRS = $(MSPGCC_INCLUDE_DIR) $(CCS_INCLUDE_GCC_DIR)
 INCLUDE_DIRS = $(MSPGCC_INCLUDE_DIR) \
@@ -28,7 +28,7 @@ INCLUDE_DIRS = $(MSPGCC_INCLUDE_DIR) \
 # Toolchain
 CC = $(MSPGCC_BIN_DIR)/msp430-elf-gcc$(EXT)
 OBJCOPY = $(MSPGCC_BIN_DIR)/msp430-elf-objcopy$(EXT)
-DSLite = D:/ti/ccs2041/ccs/ccs_base/DebugServer/bin/DSLite$(EXT)
+DSLite = $(TI_CCS_DIR)/ccs_base/DebugServer/bin/DSLite$(EXT)
 RM = rm
 CPPCHECK = cppcheck
 # Files
