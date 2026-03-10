@@ -59,7 +59,8 @@ OBJECT_NAMES = $(SOURCES:.c=.o)
 OBJECTS = $(patsubst %,$(OBJ_DIR)/%,$(OBJECT_NAMES))
 
 # Static Analysis
-CPPCHECK_INCLUDES = $(MSPGCC_INCLUDE_DIR) $(CCS_INCLUDE_GCC_DIR) ./src ./external/ ./external/printf
+## Don't check the msp430 helper headers (they have a LOT of ifdefs)
+CPPCHECK_INCLUDES = ./src
 CPPCHECK_IGNORE = external/printf
 CPPCHECK_FLAGS = \
 	--quiet --enable=all --error-exitcode=1 \
@@ -69,6 +70,7 @@ CPPCHECK_FLAGS = \
 	--suppress=unusedFunction \
 	--suppress=staticFunction \
 	--suppress=checkersReport \
+	--suppress=toomanyconfigs \
 	$(addprefix -I,$(CPPCHECK_INCLUDES)) \
 	$(addprefix -i,$(CPPCHECK_IGNORE))
 
@@ -100,7 +102,7 @@ $(OBJ_DIR)/%.o: %.c $(HEADERS)
 all: $(TARGET).hex
 
 clean:
-	$(RM) -r $(BUILD_DIR)
+	$(RM) -rf $(BUILD_DIR)
 
 flash: $(TARGET).hex
 	@echo "Flashing $(TARGET).hex to MSP430G2553..."
