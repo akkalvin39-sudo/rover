@@ -52,6 +52,9 @@ SOURCES = src/main.c \
 		  $(APP_SRC) \
 		  $(TEST_SRC)
 
+HEADERS = $(shell find src -name "*.h") \
+		  $(shell find external -name "*.h")
+
 OBJECT_NAMES = $(SOURCES:.c=.o)
 OBJECTS = $(patsubst %,$(OBJ_DIR)/%,$(OBJECT_NAMES))
 
@@ -77,19 +80,19 @@ LDFLAGS = -mmcu=$(MCU) $(addprefix -L,$(LIB_DIRS))
 
 # Build
 ## Linking
-$(TARGET): $(OBJECTS)
+$(TARGET): $(OBJECTS) $(HEADERS)
 	@echo $(OBJECTS)
 	@mkdir -p $(dir $@)
-	$(CC) $(LDFLAGS) $^ -o $@
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
 
 ## ELF to HEX
 $(TARGET).hex: $(TARGET)
 	$(OBJCOPY) -O ihex $(TARGET) $(TARGET).hex
 
 ## Compiling
-$(OBJ_DIR)/%.o: %.c
+$(OBJ_DIR)/%.o: %.c $(HEADERS)
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c -o $@ $^
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 # Phonies
 .PHONY: all clean flash cppcheck format
@@ -107,4 +110,4 @@ cppcheck:
 	@$(CPPCHECK) $(CPPCHECK_FLAGS) $(SOURCES)
 
 format:
-	@$(FORMAT) -i $(SOURCES)
+	@$(FORMAT) -i $(SOURCES) $(HEADERS)
