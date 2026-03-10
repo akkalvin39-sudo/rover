@@ -37,20 +37,19 @@ FORMAT = clang-format
 TARGET = $(BIN_DIR)/nsumo
 
 DRIVERS_SRC = $(addprefix src/drivers/,\
-				uart.c \
-				i2c.c \
-				)
+                io.c \
+               )
 APP_SRC = $(addprefix src/app/,\
-			drive.c \
-	  	  	enemy.c \
-			)
+            drive.c \
+            enemy.c \
+           )
 TEST_SRC = $(addprefix src/test/,\
-		     test.c \
-			 )
+            test.c \
+           )
 SOURCES = src/main.c \
-		  $(DRIVERS_SRC) \
-		  $(APP_SRC) \
-		  $(TEST_SRC)
+          $(DRIVERS_SRC) \
+          $(APP_SRC) \
+          $(TEST_SRC)
 
 HEADERS = $(shell find src -name "*.h") \
 		  $(shell find external -name "*.h")
