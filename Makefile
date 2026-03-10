@@ -31,6 +31,8 @@ OBJCOPY = $(MSPGCC_BIN_DIR)/msp430-elf-objcopy$(EXT)
 DSLite = $(TI_CCS_DIR)/ccs_base/DebugServer/bin/DSLite$(EXT)
 RM = rm
 CPPCHECK = cppcheck
+FORMAT = clang-format
+
 # Files
 TARGET = $(BIN_DIR)/nsumo
 
@@ -90,7 +92,7 @@ $(OBJ_DIR)/%.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $^
 
 # Phonies
-.PHONY: all clean flash cppcheck
+.PHONY: all clean flash cppcheck format
 
 all: $(TARGET).hex
 
@@ -103,3 +105,6 @@ flash: $(TARGET).hex
 
 cppcheck:
 	@$(CPPCHECK) $(CPPCHECK_FLAGS) $(SOURCES)
+
+format:
+	@$(FORMAT) -i $(SOURCES)
