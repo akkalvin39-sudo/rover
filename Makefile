@@ -37,8 +37,10 @@ FORMAT = clang-format
 TARGET = $(BIN_DIR)/nsumo
 
 DRIVERS_SRC = $(addprefix src/drivers/,\
-                io.c \
-               )
+    io.c \
+    mcu_init.c \
+)
+
 APP_SRC = $(addprefix src/app/,\
             drive.c \
             enemy.c \
