@@ -54,6 +54,7 @@ SOURCES = src/main.c \
 
 HEADERS = $(shell find src -name "*.h") \
 		  $(shell find external -name "*.h")
+FORMAT_HEADERS = $(shell find src -name "*.h")
 
 OBJECT_NAMES = $(SOURCES:.c=.o)
 OBJECTS = $(patsubst %,$(OBJ_DIR)/%,$(OBJECT_NAMES))
@@ -112,4 +113,4 @@ cppcheck:
 	@$(CPPCHECK) $(CPPCHECK_FLAGS) $(SOURCES)
 
 format:
-	@$(FORMAT) -i $(SOURCES) $(HEADERS)
+	@$(FORMAT) -i $(SOURCES) $(FORMAT_HEADERS)
