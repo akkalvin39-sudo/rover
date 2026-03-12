@@ -1,12 +1,26 @@
 on: [push]
+
 jobs:
   build_and_static_analysis:
     runs-on: ubuntu-latest
     container:
       image: alvin123msp430/msp430-gcc-9.3.1.11
+
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
-      - run: make format && git diff --quiet
-      - run: TOOLS_PATH=/home/ubuntu/dev/tools make
-      - run: TOOLS_PATH=/home/ubuntu/dev/tools make cppcheck
+
+      - name: Run formatter
+        run: make format
+
+      - name: Show formatting diff (if any)
+        run: git diff
+
+      - name: Fail if formatting changed files
+        run: git diff --exit-code
+
+      - name: Build project
+        run: TOOLS_PATH=/home/ubuntu/dev/tools make
+
+      - name: Run cppcheck
+        run: TOOLS_PATH=/home/ubuntu/dev/tools make cppcheck
