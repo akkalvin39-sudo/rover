@@ -38,6 +38,7 @@ TARGET = $(BIN_DIR)/nsumo
 
 DRIVERS_SRC = $(addprefix src/drivers/,\
 				io.c \
+				mcu_init.c \
 				)
 APP_SRC = $(addprefix src/app/,\
 			drive.c \
