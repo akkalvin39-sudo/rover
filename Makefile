@@ -1,10 +1,26 @@
+# Check arguments: require HW= unless goal is clean, cppcheck, or format
+ifeq ($(HW),LAUNCHPAD)
+    TARGET_NAME = launchpad
+else ifeq ($(HW),NSUMO)
+    TARGET_NAME = nsumo
+else ifeq ($(MAKECMDGOALS),clean)
+    TARGET_NAME =
+else ifeq ($(MAKECMDGOALS),cppcheck)
+    TARGET_NAME =
+else ifeq ($(MAKECMDGOALS),format)
+    TARGET_NAME =
+else
+    $(error Must pass HW=LAUNCHPAD or HW=NSUMO)
+endif
+
 # Directories
 TOOLS_DIR = ${TOOLS_PATH}
 MSPGCC_ROOT_DIR = $(TOOLS_DIR)/msp430-gcc
 MSPGCC_BIN_DIR = $(MSPGCC_ROOT_DIR)/bin
 MSPGCC_INCLUDE_DIR = $(MSPGCC_ROOT_DIR)/include
 
-BUILD_DIR = build
+BUILD_BASE = build
+BUILD_DIR = $(BUILD_BASE)/$(TARGET_NAME)
 OBJ_DIR = $(BUILD_DIR)/obj
 BIN_DIR = $(BUILD_DIR)/bin
 
@@ -34,7 +50,7 @@ CPPCHECK = cppcheck
 FORMAT = clang-format
 
 # Files
-TARGET = $(BIN_DIR)/nsumo
+TARGET = $(BIN_DIR)/$(TARGET_NAME)
 
 DRIVERS_SRC = $(addprefix src/drivers/,\
 				io.c \
@@ -78,8 +94,10 @@ CPPCHECK_FLAGS = \
 # Flags
 MCU = msp430g2553
 WFLAGS = -Wall -Wextra -Werror -Wshadow
-CFLAGS = -mmcu=$(MCU) $(WFLAGS) $(addprefix -I,$(INCLUDE_DIRS)) -Og -g
-LDFLAGS = -mmcu=$(MCU) $(addprefix -L,$(LIB_DIRS))
+HW_DEFINE = $(addprefix -D,$(HW))
+DEFINES = $(HW_DEFINE)
+CFLAGS = -mmcu=$(MCU) $(WFLAGS) $(addprefix -I,$(INCLUDE_DIRS)) $(DEFINES) -Og -g
+LDFLAGS = -mmcu=$(MCU) $(DEFINES) $(addprefix -L,$(LIB_DIRS))
 
 # Build
 ## Linking
@@ -103,7 +121,7 @@ $(OBJ_DIR)/%.o: %.c $(HEADERS)
 all: $(TARGET).hex
 
 clean:
-	$(RM) -rf $(BUILD_DIR)
+	$(RM) -rf $(BUILD_BASE)
 
 flash: $(TARGET).hex
 	@echo "Flashing $(TARGET).hex to MSP430G2553..."
