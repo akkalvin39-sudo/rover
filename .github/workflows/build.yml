@@ -20,7 +20,9 @@ jobs:
         run: git diff --exit-code
 
       - name: Build project
-        run: TOOLS_PATH=/home/ubuntu/dev/tools make
+        run: |
+          TOOLS_PATH=/home/ubuntu/dev/tools make HW=NSUMO
+          TOOLS_PATH=/home/ubuntu/dev/tools make HW=LAUNCHPAD
 
       - name: Run cppcheck
         run: TOOLS_PATH=/home/ubuntu/dev/tools make cppcheck
