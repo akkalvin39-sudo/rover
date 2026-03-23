@@ -1,5 +1,6 @@
 #include "drivers/io.h"
 #include "common/defines.h"
+#include "common/assert_handler.h"
 
 #include <msp430.h>
 #include <stdint.h>
@@ -17,7 +18,7 @@
  * the enums are represented as a single byte (8-bit), so given that the pins
  * are ordered in increasing order (see io_generic_e), and that there are 3 ports
  * and 8 pins, the enum value can be viewed as:
- * [ Zeros (3-bits) | Port (2 bits) | pin (3 bits) ] */
+ * [ Zeros (3 bits) | Port (2 bits) | pin (3 bits) ] */
 static_assert(sizeof(io_generic_e) == 1, "Unexpected size, -fshort-enums missing?");
 #define IO_PORT_OFFSET (3u)
 #define IO_PORT_MASK (0x3u << IO_PORT_OFFSET)
@@ -113,7 +114,7 @@ static const struct io_config io_initial_configs[IO_PORT_CNT * IO_PIN_CNT_PER_PO
     [IO_MOTORS_RIGHT_CC_1] = { IO_SELECT_GPIO, IO_RESISTOR_DISABLED, IO_DIR_OUTPUT, IO_OUT_LOW },
     [IO_MOTORS_RIGHT_CC_2] = { IO_SELECT_GPIO, IO_RESISTOR_DISABLED, IO_DIR_OUTPUT, IO_OUT_LOW },
 
-    // Output driven by timerA0, direction must be set to output
+    // Output driven by timer A0, direction must be set to output
     [IO_PWM_MOTORS_LEFT] = { IO_SELECT_ALT1, IO_RESISTOR_DISABLED, IO_DIR_OUTPUT, IO_OUT_LOW },
     [IO_PWM_MOTORS_RIGHT] = { IO_SELECT_ALT1, IO_RESISTOR_DISABLED, IO_DIR_OUTPUT, IO_OUT_LOW },
 
@@ -163,18 +164,11 @@ static hw_type_e io_detect_hw_type(void)
 void io_init(void)
 {
 #if defined(NSUMO)
-    // TODO: Assert
-    if (io_detect_hw_type() != HW_TYPE_NSUMO) {
-        while (1) { }
-    }
+    ASSERT(io_detect_hw_type() == HW_TYPE_NSUMO);
 #elif defined(LAUNCHPAD)
-    // TODO: Assert
-    if (io_detect_hw_type() != HW_TYPE_LAUNCHPAD) {
-        while (1) { }
-    }
+    ASSERT(io_detect_hw_type() == HW_TYPE_LAUNCHPAD);
 #else
-    // TODO: Assert
-    while (1) { }
+    ASSERT(0);
 #endif
     for (io_e io = (io_e)IO_10; io < ARRAY_SIZE(io_initial_configs); io++) {
         io_configure(io, &io_initial_configs[io]);
@@ -193,13 +187,12 @@ void io_get_current_config(io_e io, struct io_config *current_config)
 {
     const uint8_t port = io_port(io);
     const uint8_t pin = io_pin_bit(io);
-    const uint8_t sel1 = (*port_sel1_regs[port] & pin) ? 1 : 0;
-    const uint8_t sel2 = (*port_sel2_regs[port] & pin) ? 1 : 0;
+    const uint8_t sel1 = *port_sel1_regs[port] & pin;
+    const uint8_t sel2 = *port_sel2_regs[port] & pin;
     current_config->select = (io_select_e)((sel2 << 1) | sel1);
-    current_config->resistor =
-        (*port_ren_regs[port] & pin) ? IO_RESISTOR_ENABLED : IO_RESISTOR_DISABLED;
-    current_config->dir = (*port_dir_regs[port] & pin) ? IO_DIR_OUTPUT : IO_DIR_INPUT;
-    current_config->out = (*port_out_regs[port] & pin) ? IO_OUT_HIGH : IO_OUT_LOW;
+    current_config->resistor = (io_resistor_e)(*port_ren_regs[port] & pin);
+    current_config->dir = (io_dir_e)(*port_dir_regs[port] & pin);
+    current_config->out = (io_out_e)(*port_out_regs[port] & pin);
 }
 
 bool io_config_compare(const struct io_config *cfg1, const struct io_config *cfg2)
