@@ -1,3 +1,10 @@
+# Toolchain root for the MSP430 build.
+# CI may set either `TOOLS_PATH` (preferred) or a legacy `TOOL_PATH`.
+ifdef TOOL_PATH
+TOOLS_PATH ?= $(TOOL_PATH)
+endif
+TOOLS_PATH ?= C:/Users/User/dev/tools
+
 # Check arguments: require HW= unless goal is clean, cppcheck, or format
 ifeq ($(HW),LAUNCHPAD)
     TARGET_NAME = launchpad
@@ -27,10 +34,16 @@ BIN_DIR = $(BUILD_DIR)/bin
 TI_CCS_DIR = $(TOOLS_DIR)/ccs2041/ccs
 CCS_INCLUDE_GCC_DIR = $(TI_CCS_DIR)/ccs_base/msp430/include_gcc
 
-ifeq ($(OS),Windows_NT)
+# Determine executable extension based on what exists in the toolchain.
+# This is more robust than relying on `$(OS)` being set correctly in CI.
+ifneq ($(wildcard $(MSPGCC_BIN_DIR)/msp430-elf-gcc.exe),)
     EXT = .exe
 else
-    EXT = 
+    EXT =
+endif
+
+# On non-Windows toolchains, CCS headers live directly under the msp430-gcc root.
+ifeq ($(EXT),)
     CCS_INCLUDE_GCC_DIR = $(MSPGCC_ROOT_DIR)/include
 endif
 
@@ -55,6 +68,7 @@ TARGET = $(BIN_DIR)/$(TARGET_NAME)
 DRIVERS_SRC = $(addprefix src/drivers/,\
 				io.c \
 				mcu_init.c \
+				led.c \
 				)
 APP_SRC = $(addprefix src/app/,\
 			drive.c \
@@ -66,7 +80,8 @@ TEST_SRC = $(addprefix src/test/,\
 SOURCES = src/main.c \
 		  $(DRIVERS_SRC) \
 		  $(APP_SRC) \
-		  $(TEST_SRC)
+		  $(TEST_SRC) \
+		  src/common/assert_handler.c
 
 HEADERS = $(shell find src -name "*.h") \
 		  $(shell find external -name "*.h")
