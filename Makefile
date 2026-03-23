@@ -111,7 +111,7 @@ MCU = msp430g2553
 WFLAGS = -Wall -Wextra -Werror -Wshadow
 HW_DEFINE = $(addprefix -D,$(HW))
 DEFINES = $(HW_DEFINE)
-CFLAGS = -mmcu=$(MCU) $(WFLAGS) $(addprefix -I,$(INCLUDE_DIRS)) $(DEFINES) -Og -g
+CFLAGS = -mmcu=$(MCU) $(WFLAGS) -fshort-enums $(addprefix -I,$(INCLUDE_DIRS)) $(DEFINES) -Og -g
 LDFLAGS = -mmcu=$(MCU) $(DEFINES) $(addprefix -L,$(LIB_DIRS))
 
 # Build
