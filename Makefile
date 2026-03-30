@@ -71,6 +71,8 @@ DSLite = $(TI_CCS_DIR)/ccs_base/DebugServer/bin/DSLite$(EXT)
 RM = rm
 CPPCHECK = cppcheck
 FORMAT = clang-format
+SIZE = $(MSPGCC_BIN_DIR)/msp430-elf-size
+READELF = $(MSPGCC_BIN_DIR)/msp430-elf-readelf
 
 # Files
 TARGET = $(BUILD_DIR)/bin/$(TARGET_HW)/$(TARGET_NAME)
@@ -101,6 +103,13 @@ endif
 HEADERS = $(shell find src -name "*.h") \
 		  $(shell find external -name "*.h")
 FORMAT_HEADERS = $(shell find src -name "*.h")
+
+size: $(TARGET)
+	@$(SIZE) $(TARGET)
+
+symbols: $(TARGET)
+	# List symbols table sorted by size
+	@$(READELF) -s $(TARGET) | sort -n -k3
 
 OBJECT_NAMES = $(SOURCES:.c=.o)
 OBJECTS = $(patsubst %,$(OBJ_DIR)/%,$(OBJECT_NAMES))
