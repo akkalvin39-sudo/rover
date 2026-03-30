@@ -23,6 +23,7 @@ jobs:
         run: |
           TOOLS_PATH=/home/ubuntu/dev/tools make HW=NSUMO
           TOOLS_PATH=/home/ubuntu/dev/tools make HW=LAUNCHPAD
+          TOOLS_PATH=/home/ubuntu/dev/tools bash tools/build_tests.sh
 
       - name: Run cppcheck
         run: TOOLS_PATH=/home/ubuntu/dev/tools make cppcheck
