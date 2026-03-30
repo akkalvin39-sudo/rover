@@ -7,9 +7,9 @@ TOOLS_PATH ?= C:/Users/User/dev/tools
 
 # Check arguments: require HW= unless goal is clean, cppcheck, or format
 ifeq ($(HW),LAUNCHPAD)
-    TARGET_NAME = launchpad
+    TARGET_HW = launchpad
 else ifeq ($(HW),NSUMO)
-    TARGET_NAME = nsumo
+    TARGET_HW = nsumo
 else ifeq ($(MAKECMDGOALS),clean)
     TARGET_NAME =
 else ifeq ($(MAKECMDGOALS),cppcheck)
@@ -20,6 +20,16 @@ else
     $(error Must pass HW=LAUNCHPAD or HW=NSUMO)
 endif
 
+TARGET_NAME=$(TARGET_HW)
+
+ifneq ($(TEST),)
+ifeq ($(findstring test_,$(TEST)),)
+$(error "TEST=$(TEST) is invalid (test function must start with test_)")
+else
+TARGET_NAME=$(TEST)
+endif
+endif
+
 # Directories
 TOOLS_DIR = ${TOOLS_PATH}
 MSPGCC_ROOT_DIR = $(TOOLS_DIR)/msp430-gcc
@@ -27,7 +37,7 @@ MSPGCC_BIN_DIR = $(MSPGCC_ROOT_DIR)/bin
 MSPGCC_INCLUDE_DIR = $(MSPGCC_ROOT_DIR)/include
 
 BUILD_BASE = build
-BUILD_DIR = $(BUILD_BASE)/$(TARGET_NAME)
+BUILD_DIR = $(BUILD_BASE)
 OBJ_DIR = $(BUILD_DIR)/obj
 BIN_DIR = $(BUILD_DIR)/bin
 
@@ -63,7 +73,7 @@ CPPCHECK = cppcheck
 FORMAT = clang-format
 
 # Files
-TARGET = $(BIN_DIR)/$(TARGET_NAME)
+TARGET = $(BUILD_DIR)/bin/$(TARGET_HW)/$(TARGET_NAME)
 
 DRIVERS_SRC = $(addprefix src/drivers/,\
 				io.c \
@@ -74,14 +84,19 @@ APP_SRC = $(addprefix src/app/,\
 			drive.c \
 	  	  	enemy.c \
 			)
-TEST_SRC = $(addprefix src/test/,\
-		     test.c \
-			 )
-SOURCES = src/main.c \
+SOURCES_WITH_HEADERS = \
 		  $(DRIVERS_SRC) \
 		  $(APP_SRC) \
-		  $(TEST_SRC) \
 		  src/common/assert_handler.c
+
+ifndef TEST
+SOURCES = src/main.c \
+		  $(SOURCES_WITH_HEADERS)
+else
+SOURCES = src/test/test.c \
+		  $(SOURCES_WITH_HEADERS)
+$(shell rm -f $(OBJ_DIR)/src/test/test.o)
+endif
 
 HEADERS = $(shell find src -name "*.h") \
 		  $(shell find external -name "*.h")
@@ -110,7 +125,8 @@ CPPCHECK_FLAGS = \
 MCU = msp430g2553
 WFLAGS = -Wall -Wextra -Werror -Wshadow
 HW_DEFINE = $(addprefix -D,$(HW))
-DEFINES = $(HW_DEFINE)
+TEST_DEFINE = $(addprefix -DTEST=,$(TEST))
+DEFINES = $(HW_DEFINE) $(TEST_DEFINE)
 CFLAGS = -mmcu=$(MCU) $(WFLAGS) -fshort-enums $(addprefix -I,$(INCLUDE_DIRS)) $(DEFINES) -Og -g
 LDFLAGS = -mmcu=$(MCU) $(DEFINES) $(addprefix -L,$(LIB_DIRS))
 
