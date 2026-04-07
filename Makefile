@@ -89,7 +89,9 @@ APP_SRC = $(addprefix src/app/,\
 SOURCES_WITH_HEADERS = \
 		  $(DRIVERS_SRC) \
 		  $(APP_SRC) \
-		  src/common/assert_handler.c
+		  src/common/assert_handler.c \
+		  src/common/ring_buffer.c \
+		  src/drivers/uart.c
 
 ifndef TEST
 SOURCES = src/main.c \
