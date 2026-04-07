@@ -9,6 +9,8 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
+        with:
+          submodules: "true"
 
       - name: Run formatter
         run: make format
