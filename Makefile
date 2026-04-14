@@ -68,6 +68,7 @@ CPPCHECK = cppcheck
 FORMAT = clang-format
 SIZE = $(MSPGCC_BIN_DIR)/msp430-elf-size
 READELF = $(MSPGCC_BIN_DIR)/msp430-elf-readelf
+ADDR2LINE = $(MSPGCC_BIN_DIR)/msp430-elf-addr2line
 
 # Files
 TARGET = $(BUILD_DIR)/bin/$(TARGET_HW)/$(TARGET_NAME)
@@ -184,3 +185,6 @@ size: $(TARGET)
 
 symbols: $(TARGET)
 	@$(READELF) -s $(TARGET) | sort -n -k3
+
+addr2line: $(TARGET)
+	@$(ADDR2LINE) -e $(TARGET) $(ADDR)
