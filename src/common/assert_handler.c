@@ -1,7 +1,7 @@
 #include "common/assert_handler.h"
 #include "common/defines.h"
 #include "drivers/uart.h"
-#include "printf/printf.h"
+#include "external/printf/printf.h"
 #include <msp430.h>
 
 /* Software breakpoint for MSP430-GCC */
@@ -24,8 +24,8 @@ static void assert_trace(uint16_t program_counter)
     uart_trace_assert(assert_string);
 }
 
-/* --- LED SETUP --- */
-static void assert_led_init(void)
+/* --- LED INIT (renamed to match tutorial) */
+static void assert_blink_led(void)
 {
 #if defined(LAUNCHPAD)
     P1SEL &= ~(BIT0 | BIT6);
@@ -47,7 +47,7 @@ void assert_handler(uint16_t program_counter)
     BREAKPOINT;
 #endif
 
-    assert_led_init(); // init LED once
+    assert_blink_led(); // ✅ FIXED
 
     while (1) {
         // keep sending UART (reliable)
