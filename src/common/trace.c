@@ -2,7 +2,7 @@
 #include "common/trace.h"
 #include "common/assert_handler.h"
 #include "drivers/uart.h"
-#include "printf/printf.h"
+#include "external/printf/printf.h"
 #include <stdbool.h>
 
 static bool initialized = false;
