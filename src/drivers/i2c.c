@@ -16,7 +16,7 @@ static inline void i2c_set_tx_byte(uint8_t byte)
 static i2c_result_e i2c_wait_tx_byte(void)
 {
     uint16_t retries = RETRY_COUNT;
-    while (!(IFG2 & UCB0TXIFG) && retries--) { }
+    while (!(IFG2 & UCB0TXIFG) && --retries) { }
     if (retries == 0) {
         return I2C_RESULT_ERROR_TIMEOUT;
     }
@@ -26,7 +26,7 @@ static i2c_result_e i2c_wait_tx_byte(void)
 static i2c_result_e i2c_wait_rx_byte(void)
 {
     uint16_t retries = RETRY_COUNT;
-    while (!(IFG2 & UCB0RXIFG) && retries--) { }
+    while (!(IFG2 & UCB0RXIFG) && --retries) { }
     if (retries == 0) {
         return I2C_RESULT_ERROR_TIMEOUT;
     }
